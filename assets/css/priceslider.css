@@ -1,0 +1,221 @@
+/*
+ * jQuery UI Slider 1.8.18
+ *
+ * Copyright 2011, AUTHORS.txt (http://jqueryui.com/about)
+ * Dual licensed under the MIT or GPL Version 2 licenses.
+ * http://jquery.org/license
+ *
+ * http://docs.jquery.com/UI/Slider#theming
+ */
+.ui-slider {
+	position: relative;
+	text-align: left;
+}
+.ui-slider .ui-slider-handle {
+	position: absolute;
+	z-index: 2;
+	width: 1.2em;
+	height: 1.2em;
+	cursor: default;
+}
+.ui-slider .ui-slider-range {
+	position: absolute;
+	z-index: 1;
+	font-size: .7em;
+	display: block;
+	border: 0;
+	background-position: 0 0;
+}
+.ui-slider-horizontal {
+	height: .8em;
+}
+.ui-slider-horizontal .ui-slider-handle {
+	top: -.3em;
+	margin-left: -.6em;
+}
+.ui-slider-horizontal .ui-slider-range {
+	height: 10px;
+}
+.ui-slider-horizontal .ui-slider-range-max {
+	right: 0;
+}
+.ui-slider-vertical {
+	width: .8em;
+	height: 100px;
+}
+.ui-slider-vertical .ui-slider-handle {
+	left: -.3em;
+	margin-left: 0;
+	margin-bottom: -.6em;
+}
+.ui-slider-vertical .ui-slider-range {
+	left: 0;
+	width: 100%;
+}
+.ui-slider-vertical .ui-slider-range-min {
+	bottom: 0;
+}
+.ui-slider-vertical .ui-slider-range-max {
+	top: 0;
+}
+.slider-container h3 {
+	margin:0 0 10px;
+	padding:0;
+	color:#333;
+	font-size:30px;
+	line-height:30px;
+	font-weight:normal;
+}
+.slider-container p {
+	margin:0;
+	padding:0;
+}
+.sliderbox {
+    border-radius: 20px;
+    margin-bottom: 20px;
+    background: var(--primary-color);
+    padding: 44px 40px 50px;
+    box-shadow: 1px 1px 56px 2px rgb(231 246 253 / 60%);
+    border-top: 2px solid var(--secondary-color);
+}
+.slider-container #slider {
+    margin: 0 auto 45px;
+    width: 100%;
+    height: 10px;
+    padding: 0;
+    background: #d6edf7;
+    border-radius: 12px;
+}
+.slider-container #slider .ui-slider-range {
+    background: var(--accent);
+    background-size: contain;
+    border-radius: 12px;
+}
+.slider-container #slider .ui-slider-handle {
+	outline: none;
+	background: url(../images/handle.png) no-repeat left top;
+	border-radius: 8px;
+	border: 0;
+	width: 29px;
+	height: 29px;
+	margin-top: -6px;
+	margin-left: -23px;
+	transition: none; 
+}
+.slider-container #slider .ui-slider-handle:hover {
+	cursor: pointer;
+}
+.price_rangetxt {
+    width: 100%;
+    display: grid;
+    margin-bottom: 32px;
+    grid-template-columns: 20% 20% 20% 20% 10%;
+    justify-content: center;
+}
+.price_rangetxt div.icon {
+    color: var(--secondary-color);
+    font-size: 18px;
+    line-height: 24px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.price_rangetxt div.current {
+	color: var(--accent);
+}
+.price_content {
+    display: grid;
+    align-items: center;
+    grid-template-columns: 68% 32%;
+}
+.price_content .smallbox {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+}
+.price_content .heading {
+    font-size: 16px;
+    line-height: 24px;
+    display: block;
+    margin-bottom: 1px;
+}
+.price_content .value {
+    display: block;
+    font-size: 22px;
+    line-height: 28px;
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+.price_content .smallbox:last-child {
+	margin:0;
+	border-right:none;
+}
+.price_txt {
+    display: flex;
+}
+#backup_val {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 16px;
+    border-radius: 10px;
+    background: var(--secondary-color);
+    justify-content: space-between;
+}
+.price_txt .dollar {
+    color: var(--primary-color);
+    line-height: 32px;
+    font-size: 32px;
+    position: relative;
+    padding-right: 0;
+    top: 0;
+    font-weight: 700;
+}
+.price_txt .numeric1 {
+    color: var(--primary-color);
+    line-height: 32px;
+    font-size: 32px;
+    font-weight: 700;
+}
+.vps-price-plan .month-title small {
+    font-size: 15px;
+    line-height: 15px;
+    display: block;
+    color: var(--primary-color);
+}
+.month-title {
+    padding-left: 3px;
+}
+.vps_btn.generic-btn a {
+    border-color: var(--orange-color);
+    color: var(--primary-color);
+    background: var(--orange-color);
+    height: 42px;
+    font-size: 14px;
+    line-height: 24px;
+    border-radius: 5px;
+    font-weight: 500;
+    padding: 10px 28px;
+    width: 121px;
+    border: 1px solid var(--orange-color);
+}
+.vps_btn.generic-btn a:hover{
+    color: var(--orange-color);
+    background: transparent;
+}
+.price_txt .numeric2 {
+    color: var(--primary-color);
+    line-height: 15px;
+    font-size: 15px;
+    display: block;
+    font-weight: 500;
+}
+.product-con {
+    display: grid;
+    gap: 18px;
+    align-items: center;
+    grid-template-columns: 23% 21% 22% 22%;
+}
+.slider-container {
+    max-width: 1030px;
+    margin: 0 auto;
+}
