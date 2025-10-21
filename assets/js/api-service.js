@@ -202,7 +202,6 @@ class ContentManager {
                   "For plenty of power and room to grow, go Dedicated and get the whole box to yourself."
                 }</p>
                 <div class="banner-link-con generic-btn">
-                    <a href="https://themeforest.net/item/hostiko-html-whmcs-hosting-theme/21860050">Get Started</a>
                     ${
                       content.discount_percentage
                         ? `
@@ -389,9 +388,6 @@ class ContentManager {
                         </li>
                     `).join('') : ''}
                 </ul>
-                <div class="generic-btn">
-                    <a href="https://themeforest.net/item/hostiko-html-whmcs-hosting-theme/21860050">Get Started</a>
-                </div>
             </div>
         `;
 
