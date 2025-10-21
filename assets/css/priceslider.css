@@ -186,9 +186,9 @@
     padding-left: 3px;
 }
 .vps_btn.generic-btn a {
-    border-color: var(--orange-color);
+    border-color: var(--blue-color);
     color: var(--primary-color);
-    background: var(--orange-color);
+    background: var(--blue-color);
     height: 42px;
     font-size: 14px;
     line-height: 24px;
@@ -196,10 +196,10 @@
     font-weight: 500;
     padding: 10px 28px;
     width: 121px;
-    border: 1px solid var(--orange-color);
+    border: 1px solid var(--blue-color);
 }
 .vps_btn.generic-btn a:hover{
-    color: var(--orange-color);
+    color: var(--blue-color);
     background: transparent;
 }
 .price_txt .numeric2 {

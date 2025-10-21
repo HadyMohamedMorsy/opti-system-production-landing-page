@@ -188,18 +188,23 @@ $('.count').each(function () {
   });
 });
 
-// Enhanced Language Switch Functionality
+// Enhanced Language Switch Functionality with Dynamic Content
 $(document).ready(function() {
     console.log('Language switch script loaded');
     
-    // Initialize language from localStorage or default to 'en'
     const savedLanguage = localStorage.getItem('selectedLanguage') || 'en';
     
-    // Apply language direction and class
     applyLanguage(savedLanguage);
     updateDropdownDisplay(savedLanguage);
     
-    // Handle dropdown toggle
+    if (typeof contentManager !== 'undefined') {
+        contentManager.init().then(() => {
+            console.log('Content manager initialized');
+        }).catch(error => {
+            console.error('Error initializing content manager:', error);
+        });
+    }
+    
     $(document).on('click', '#language-dropdown-toggle', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -216,9 +221,8 @@ $(document).ready(function() {
         const selectedLanguage = $(this).data('lang');
         console.log('Language selected:', selectedLanguage);
         
-        localStorage.setItem('selectedLanguage', selectedLanguage);
-        applyLanguage(selectedLanguage);
-        updateDropdownDisplay(selectedLanguage);
+        // Update language and content
+        changeLanguage(selectedLanguage);
         $('.custom-dropdown').removeClass('open');
         
         console.log('Language changed to:', selectedLanguage);
@@ -257,6 +261,23 @@ $(document).ready(function() {
         } else {
             $flag.removeClass('flag-ar').addClass('flag-en');
             $text.text('EN');
+        }
+    }
+    
+    async function changeLanguage(lang) {
+        // Update language settings
+        localStorage.setItem('selectedLanguage', lang);
+        applyLanguage(lang);
+        updateDropdownDisplay(lang);
+        
+        // Update content if content manager is available
+        if (typeof contentManager !== 'undefined') {
+            try {
+                await contentManager.changeLanguage(lang);
+                console.log('Content updated for language:', lang);
+            } catch (error) {
+                console.error('Error updating content for language:', error);
+            }
         }
     }
     
