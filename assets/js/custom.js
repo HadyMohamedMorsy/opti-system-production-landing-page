@@ -187,4 +187,82 @@ $('.count').each(function () {
     }
   });
 });
+
+// Enhanced Language Switch Functionality
+$(document).ready(function() {
+    console.log('Language switch script loaded');
+    
+    // Initialize language from localStorage or default to 'en'
+    const savedLanguage = localStorage.getItem('selectedLanguage') || 'en';
+    
+    // Apply language direction and class
+    applyLanguage(savedLanguage);
+    updateDropdownDisplay(savedLanguage);
+    
+    // Handle dropdown toggle
+    $(document).on('click', '#language-dropdown-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Dropdown toggle clicked');
+        
+        $('.custom-dropdown').toggleClass('open');
+        console.log('Dropdown classes:', $('.custom-dropdown').attr('class'));
+    });
+    
+    // Handle language selection
+    $(document).on('click', '.custom-dropdown .dropdown-item', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const selectedLanguage = $(this).data('lang');
+        console.log('Language selected:', selectedLanguage);
+        
+        localStorage.setItem('selectedLanguage', selectedLanguage);
+        applyLanguage(selectedLanguage);
+        updateDropdownDisplay(selectedLanguage);
+        $('.custom-dropdown').removeClass('open');
+        
+        console.log('Language changed to:', selectedLanguage);
+    });
+    
+    // Close dropdown when clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.custom-dropdown').length) {
+            $('.custom-dropdown').removeClass('open');
+        }
+    });
+    
+    function applyLanguage(lang) {
+        if (lang === 'ar') {
+            $('html').attr('dir', 'rtl').attr('lang', 'ar');
+            $('body').addClass('rtl-mode');
+        } else {
+            $('html').attr('dir', 'ltr').attr('lang', 'en');
+            $('body').removeClass('rtl-mode');
+        }
+    }
+    
+    function updateDropdownDisplay(lang) {
+        const $toggle = $('#language-dropdown-toggle');
+        const $flag = $toggle.find('.flag-icon');
+        const $text = $toggle.find('.language-text');
+        
+        console.log('Updating dropdown display for language:', lang);
+        console.log('Toggle element found:', $toggle.length);
+        console.log('Flag element found:', $flag.length);
+        console.log('Text element found:', $text.length);
+        
+        if (lang === 'ar') {
+            $flag.removeClass('flag-en').addClass('flag-ar');
+            $text.text('العربية');
+        } else {
+            $flag.removeClass('flag-ar').addClass('flag-en');
+            $text.text('EN');
+        }
+    }
+    
+    // Debug: Check if elements exist
+    console.log('Language toggle exists:', $('#language-dropdown-toggle').length);
+    console.log('Custom dropdown exists:', $('.custom-dropdown').length);
+    console.log('Dropdown menu exists:', $('.custom-dropdown .dropdown-menu').length);
+});
 // 
