@@ -62,18 +62,41 @@ class APIService {
 
     // Get general settings
     getGeneralSettings(data) {
-        const generalSettings = data?.general_settings;
-        if (!generalSettings) {
+        // Structure: data.general_settings.content is an object containing:
+        // - content: array of multilingual content
+        // - store_email, store_phone, facebook_pixel_id, etc. (settings not in content array)
+        const generalSettingsObj = data?.general_settings?.content;
+        if (!generalSettingsObj) {
+            return null;
+        }
+        
+        // Get content array (multilingual content)
+        const contentArray = generalSettingsObj.content;
+        if (!Array.isArray(contentArray) || contentArray.length === 0) {
             return null;
         }
         
         // Get content for current language
         const currentLang = this.currentLanguage === 'ar' ? 2 : 1; // Assuming 1=en, 2=ar
-        const content = generalSettings.content?.find(c => c.language_id === currentLang) || generalSettings.content?.[0];
-        
+        const languageContent = contentArray.find(c => c.language_id === currentLang) || contentArray[0];
         return {
-            ...generalSettings,
-            content: content
+            content: languageContent,
+            store_email: generalSettingsObj.store_email,
+            store_phone: generalSettingsObj.store_phone,
+            gtm_container_id: generalSettingsObj.gtm_container_id,
+            google_analytics_id: generalSettingsObj.google_analytics_id,
+            facebook_pixel_id: generalSettingsObj.facebook_pixel_id,
+            snapchat_pixel_id: generalSettingsObj.snapchat_pixel_id,
+            init_tiktok_id: generalSettingsObj.init_tiktok_id,
+            gtm_enabled: generalSettingsObj.gtm_enabled,
+            google_analytics_enabled: generalSettingsObj.google_analytics_enabled,
+            facebook_pixel_enabled: generalSettingsObj.facebook_pixel_enabled,
+            snapchat_pixel_enabled: generalSettingsObj.snapchat_pixel_enabled,
+            init_tiktok_enabled: generalSettingsObj.init_tiktok_enabled,
+            facebook_url: generalSettingsObj.facebook_url,
+            instagram_url: generalSettingsObj.instagram_url,
+            twitter_url: generalSettingsObj.twitter_url,
+            maintenance_mode: generalSettingsObj.maintenance_mode
         };
     }
 
