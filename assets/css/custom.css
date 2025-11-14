@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
 
 :root {
     --primary-color: #ffffff;
@@ -8,6 +9,7 @@
     --border-color: #cfdee5;
     --blue-color: #2f78bc;
     --light-blue: #7690d9;
+    --contact-btn-color: #5f408e;
 }
 * {
     margin: 0;
@@ -24,6 +26,57 @@ body {
     color: var(--text-color);
     font-family: 'Inter', sans-serif;
     word-break: break-word;
+}
+/* Arabic font support - Cairo font for Arabic language */
+body.rtl-mode,
+html[dir="rtl"] body,
+html[lang="ar"] body {
+    font-family: 'Cairo', sans-serif;
+}
+
+body.rtl-mode h1,
+body.rtl-mode h2,
+body.rtl-mode h3,
+body.rtl-mode h4,
+body.rtl-mode h5,
+body.rtl-mode h6,
+body.rtl-mode p,
+body.rtl-mode span,
+body.rtl-mode a,
+body.rtl-mode button,
+body.rtl-mode input,
+body.rtl-mode textarea,
+body.rtl-mode label,
+body.rtl-mode li,
+html[dir="rtl"] body h1,
+html[dir="rtl"] body h2,
+html[dir="rtl"] body h3,
+html[dir="rtl"] body h4,
+html[dir="rtl"] body h5,
+html[dir="rtl"] body h6,
+html[dir="rtl"] body p,
+html[dir="rtl"] body span,
+html[dir="rtl"] body a,
+html[dir="rtl"] body button,
+html[dir="rtl"] body input,
+html[dir="rtl"] body textarea,
+html[dir="rtl"] body label,
+html[dir="rtl"] body li,
+html[lang="ar"] body h1,
+html[lang="ar"] body h2,
+html[lang="ar"] body h3,
+html[lang="ar"] body h4,
+html[lang="ar"] body h5,
+html[lang="ar"] body h6,
+html[lang="ar"] body p,
+html[lang="ar"] body span,
+html[lang="ar"] body a,
+html[lang="ar"] body button,
+html[lang="ar"] body input,
+html[lang="ar"] body textarea,
+html[lang="ar"] body label,
+html[lang="ar"] body li {
+    font-family: 'Cairo', sans-serif;
 }
 /* generics start */
 h1 {
@@ -92,6 +145,19 @@ a:hover {
     background: var(--primary-color);
     color: var(--secondary-color);
 }
+
+/* Order Now Button (Start button) styling */
+.generic-btn a.order-now-btn {
+    background: var(--contact-btn-color);
+    border-color: var(--contact-btn-color);
+    color: var(--primary-color);
+}
+
+.generic-btn a.order-now-btn:hover {
+    background: var(--primary-color);
+    color: var(--contact-btn-color);
+    border-color: var(--contact-btn-color);
+}
 .generic-title {
     padding: 0 194px;
     margin-bottom: 54px;
@@ -108,9 +174,21 @@ a:hover{
 }
 /* header section styling start here */
 .header-main-con {
-    position: absolute;
-    top: 33px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
     z-index: 999;
+    transition: all 0.3s ease;
+    background: transparent;
+    padding: 33px 0;
+}
+
+.header-main-con.scrolled {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    padding: 15px 0;
 }
 .header-main-con .collapse.navbar-collapse {
     justify-content: end;
@@ -258,7 +336,7 @@ a:hover{
     color: var(--primary-color);
     padding: 10px 35px;
     border-radius: 5px;
-    background: var(--accent);
+    background: var(--contact-btn-color);
 }
 .login-btn a:hover{
     background: var(--secondary-color);
@@ -437,6 +515,13 @@ a:hover{
     padding-left: 15px;
     position: relative;
 }
+
+.banner-content-con h1 {
+    color: var(--secondary-color);
+    margin-bottom: 20px;
+    font-size: 42px;
+    line-height: 50px;
+}
 .banner-inner-con ul li::before{
     content: "";
     width: 6px;
@@ -469,19 +554,86 @@ a:hover{
     right: -60px;
     top: 452px;
 }
+.banner-content-con {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 40px 50px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.banner-content-con:hover {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* RTL Support for banner content */
+.rtl-mode .banner-content-con p,
+html[dir="rtl"] .banner-content-con p {
+    padding-right: 0;
+    padding-left: 0;
+}
+
 .banner-content-con p {
     color: var(--secondary-color);
-    padding-right: 60px;
+    padding-right: 0;
     margin-bottom: 33px;
 }
+
+.banner-link-con {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.banner-cta-btn {
+    margin: 0;
+}
+
+.get-started-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 600;
+    height: 58px;
+    padding: 10px 40px;
+    border-radius: 10px;
+    background: var(--contact-btn-color);
+    color: var(--primary-color);
+    border: 1px solid var(--contact-btn-color);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.get-started-btn:hover {
+    background: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(95, 64, 142, 0.3);
+    text-decoration: none;
+}
+
+.get-started-btn:active {
+    transform: translateY(0);
+}
+
 .banner-content-con .generic-btn a{
     color: var(--primary-color);
-    background: var(--blue-color);
-    border-color: var(--blue-color);
+    background: var(--contact-btn-color);
+    border-color: var(--contact-btn-color);
 }
 .banner-content-con .generic-btn a:hover{
     background: var(--primary-color);
-    color: var(--blue-color);
+    color: var(--contact-btn-color);
 }
 .percent-off {
     font-size: 66px;
@@ -501,7 +653,7 @@ a:hover{
     line-height: 16px;
     border-radius: 100%;
     color: var(--primary-color);
-    background: var(--accent);
+    background: var(--contact-btn-color);
     border: 1px solid var(--primary-color);
     display: flex;
     align-items: center;
@@ -525,11 +677,6 @@ a:hover{
     display: flex;
     align-items: center;
     gap: 20px;
-}
-.banner-link-con {
-    display: flex;
-    align-items: center;
-    gap: 30px;
 }
 /*  */
 .find-domain-input-outer {
@@ -633,7 +780,7 @@ a:hover{
 .hosting-types-inner-con {
     display: grid;
     gap: 30px;
-    grid-template-columns: 31.5% 31.5% 31.5%;
+    grid-template-columns: 50% 50%;
 }
 .hosting-type-box {
     background: var(--primary-color);
@@ -847,7 +994,7 @@ figure.service-chat-img {
     width: 50px;
     height: 50px;
     border-radius: 10px;
-    background: var(--secondary-color);
+    background: var(--contact-btn-color);
     color: var(--primary-color);
     font-size: 20px;
     line-height: 30px;
@@ -1059,6 +1206,52 @@ figure.service-chat-img {
     justify-content: center;
     margin-bottom: 24px;
 }
+/* Video Section Styles */
+.video-section {
+    background: var(--primary-color);
+}
+
+.video-section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    background: #000;
+}
+
+.main-video-player {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    object-fit: cover;
+}
+
+.video-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f5f5;
+    border-radius: 20px;
+    color: var(--text-color);
+    font-size: 18px;
+}
+
 .client-review-slider .owl-carousel .owl-stage {
     display: flex;
 }
@@ -2422,6 +2615,232 @@ p.vps-slider-boost-txt span{
     }
 }
 /* bottom to top button */
+/* Contact Modal Dialog Styles */
+.contact-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.contact-modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.contact-modal-container {
+    background: var(--primary-color);
+    border-radius: 20px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+    position: relative;
+}
+
+.contact-modal-overlay.active .contact-modal-container {
+    transform: scale(1);
+}
+
+.contact-modal-header {
+    padding: 30px 40px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    background: var(--primary-color);
+    z-index: 1;
+    border-radius: 20px 20px 0 0;
+}
+
+.contact-modal-header h3 {
+    margin: 0;
+    font-size: 28px;
+    color: var(--secondary-color);
+    font-weight: 700;
+}
+
+.contact-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: var(--text-color);
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.contact-modal-close:hover {
+    background: var(--border-color);
+    color: var(--secondary-color);
+    transform: rotate(90deg);
+}
+
+.contact-modal-body {
+    padding: 30px 40px 40px;
+}
+
+.contact-modal-form .form-group {
+    margin-bottom: 25px;
+}
+
+.contact-modal-form input,
+.contact-modal-form textarea {
+    width: 100%;
+    padding: 16px 21px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    outline: none;
+    font-size: 14px;
+    line-height: 24px;
+    color: var(--secondary-color);
+    background: var(--primary-color);
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.contact-modal-form input:focus,
+.contact-modal-form textarea:focus {
+    border-color: var(--blue-color);
+    box-shadow: 0 0 0 3px rgba(47, 120, 188, 0.1);
+}
+
+.contact-modal-form input::placeholder,
+.contact-modal-form textarea::placeholder {
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+.contact-modal-form textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.contact-modal-form .error {
+    color: #e74c3c;
+    font-size: 12px;
+    line-height: 14px;
+    margin-top: 5px;
+    display: block;
+    margin-left: 5px;
+}
+
+.contact-submit-btn {
+    width: 100%;
+    height: 58px;
+    background: var(--blue-color);
+    color: var(--primary-color);
+    border: 1px solid var(--blue-color);
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: 'Inter', sans-serif;
+}
+
+.contact-submit-btn:hover {
+    background: var(--secondary-color);
+    border-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(47, 120, 188, 0.3);
+}
+
+.contact-submit-btn:active {
+    transform: translateY(0);
+}
+
+.contact-submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.contact-submit-btn i {
+    font-size: 18px;
+}
+
+#form_result {
+    margin-bottom: 20px;
+    min-height: 20px;
+}
+
+#form_result .form-success {
+    background: #d4edda;
+    color: #155724;
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: 1px solid #c3e6cb;
+    font-size: 14px;
+}
+
+#form_result .form-error {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+    font-size: 14px;
+}
+
+/* Responsive Modal */
+@media (max-width: 768px) {
+    .contact-modal-container {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .contact-modal-header {
+        padding: 20px 25px 15px;
+    }
+    
+    .contact-modal-header h3 {
+        font-size: 22px;
+    }
+    
+    .contact-modal-body {
+        padding: 20px 25px 30px;
+    }
+    
+    .contact-modal-form .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .contact-modal-form input,
+    .contact-modal-form textarea {
+        padding: 14px 18px;
+        font-size: 14px;
+    }
+    
+    .contact-submit-btn {
+        height: 50px;
+        font-size: 15px;
+    }
+}
+
 /* Preloader -------------------------------------------------------*/
 /* Loader Styles start here */
 .loader-mask {

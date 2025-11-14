@@ -192,6 +192,86 @@ $('.count').each(function () {
 $(document).ready(function() {
     console.log('Language switch script loaded');
     
+    // Define functions first
+    function applyLanguage(lang) {
+        if (lang === 'ar') {
+            $('html').attr('dir', 'rtl').attr('lang', 'ar');
+            $('body').addClass('rtl-mode');
+        } else {
+            $('html').attr('dir', 'ltr').attr('lang', 'en');
+            $('body').removeClass('rtl-mode');
+        }
+    }
+    
+    function updateContactButtonText(lang) {
+        const $contactBtn = $('#contact-btn');
+        if ($contactBtn.length) {
+            if (lang === 'ar') {
+                $contactBtn.text('اتصل بنا');
+            } else {
+                $contactBtn.text('Contact');
+            }
+        }
+        
+        // Update Get Started button text
+        const $getStartedBtn = $('#banner-get-started-btn');
+        if ($getStartedBtn.length) {
+            if (lang === 'ar') {
+                $getStartedBtn.text('ابدأ الآن');
+            } else {
+                $getStartedBtn.text('Get Started');
+            }
+        }
+        
+        // Update Order Now (Start) buttons text
+        const $orderBtns = $('.order-now-btn');
+        $orderBtns.each(function() {
+            if (lang === 'ar') {
+                $(this).text('ابدأ بارضك');
+            } else {
+                $(this).text('Start Now');
+            }
+        });
+        
+        // Update Read More buttons text
+        const $readMoreBtns = $('.read-more-btn');
+        $readMoreBtns.each(function() {
+            const $btn = $(this);
+            const $icon = $btn.find('i');
+            const iconHTML = $icon.length ? $icon[0].outerHTML : '';
+            if (lang === 'ar') {
+                $btn.html('ابدأ الآن ' + iconHTML);
+            } else {
+                $btn.html('Start Now ' + iconHTML);
+            }
+        });
+    }
+    
+    function updateCurrencySymbol(lang) {
+        const currencySymbol = lang === 'ar' ? 'ج.م' : 'EGP';
+        $('.dollar').text(currencySymbol);
+    }
+    
+    function updateDropdownDisplay(lang) {
+        const $toggle = $('#language-dropdown-toggle');
+        const $flag = $toggle.find('.flag-icon');
+        const $text = $toggle.find('.language-text');
+        
+      
+        if (lang === 'ar') {
+            $flag.removeClass('flag-en').addClass('flag-ar');
+            $text.text('العربية');
+        } else {
+            $flag.removeClass('flag-ar').addClass('flag-en');
+            $text.text('EN');
+        }
+        
+        // Update Contact button text
+        updateContactButtonText(lang);
+        // Update currency symbol
+        updateCurrencySymbol(lang);
+    }
+    
     const savedLanguage = localStorage.getItem('selectedLanguage') || 'en';
     
     applyLanguage(savedLanguage);
@@ -235,35 +315,6 @@ $(document).ready(function() {
         }
     });
     
-    function applyLanguage(lang) {
-        if (lang === 'ar') {
-            $('html').attr('dir', 'rtl').attr('lang', 'ar');
-            $('body').addClass('rtl-mode');
-        } else {
-            $('html').attr('dir', 'ltr').attr('lang', 'en');
-            $('body').removeClass('rtl-mode');
-        }
-    }
-    
-    function updateDropdownDisplay(lang) {
-        const $toggle = $('#language-dropdown-toggle');
-        const $flag = $toggle.find('.flag-icon');
-        const $text = $toggle.find('.language-text');
-        
-        console.log('Updating dropdown display for language:', lang);
-        console.log('Toggle element found:', $toggle.length);
-        console.log('Flag element found:', $flag.length);
-        console.log('Text element found:', $text.length);
-        
-        if (lang === 'ar') {
-            $flag.removeClass('flag-en').addClass('flag-ar');
-            $text.text('العربية');
-        } else {
-            $flag.removeClass('flag-ar').addClass('flag-en');
-            $text.text('EN');
-        }
-    }
-    
     async function changeLanguage(lang) {
         // Update language settings
         localStorage.setItem('selectedLanguage', lang);
@@ -275,6 +326,11 @@ $(document).ready(function() {
             try {
                 await contentManager.changeLanguage(lang);
                 console.log('Content updated for language:', lang);
+                
+                // Update button text after content is rebuilt
+                updateContactButtonText(lang);
+                // Update currency symbol after content is rebuilt
+                updateCurrencySymbol(lang);
             } catch (error) {
                 console.error('Error updating content for language:', error);
             }
@@ -285,5 +341,198 @@ $(document).ready(function() {
     console.log('Language toggle exists:', $('#language-dropdown-toggle').length);
     console.log('Custom dropdown exists:', $('.custom-dropdown').length);
     console.log('Dropdown menu exists:', $('.custom-dropdown .dropdown-menu').length);
+});
+
+// Contact Modal Functionality
+$(document).ready(function() {
+    const $modal = $('#contact-modal');
+    const $contactBtn = $('#contact-btn');
+    const $getStartedBtn = $('#banner-get-started-btn');
+    const $closeBtn = $('#contact-modal-close');
+    const $form = $('#contact-modal-form');
+    
+    // Function to open modal
+    function openContactModal() {
+        $modal.addClass('active');
+        $('body').css('overflow', 'hidden');
+        // Focus on first input
+        setTimeout(function() {
+            $('#contact-name').focus();
+        }, 300);
+    }
+    
+    // Open modal from contact button
+    $contactBtn.on('click', function(e) {
+        e.preventDefault();
+        openContactModal();
+    });
+    
+    // Open modal from get started button (using event delegation for dynamically added buttons)
+    $(document).on('click', '#banner-get-started-btn', function(e) {
+        e.preventDefault();
+        openContactModal();
+    });
+    
+    // Open modal from order now (Start) buttons (using event delegation for dynamically added buttons)
+    $(document).on('click', '.order-now-btn', function(e) {
+        e.preventDefault();
+        openContactModal();
+    });
+    
+    // Open modal from read more buttons (using event delegation for dynamically added buttons)
+    $(document).on('click', '.read-more-btn', function(e) {
+        e.preventDefault();
+        openContactModal();
+    });
+    
+    // Close modal
+    function closeModal() {
+        $modal.removeClass('active');
+        $('body').css('overflow', '');
+        $form[0].reset();
+        $('#form_result').empty();
+        $('.error').text('');
+    }
+    
+    $closeBtn.on('click', closeModal);
+    
+    // Close on overlay click
+    $modal.on('click', function(e) {
+        if ($(e.target).is($modal)) {
+            closeModal();
+        }
+    });
+    
+    // Close on ESC key
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape' && $modal.hasClass('active')) {
+            closeModal();
+        }
+    });
+    
+    // Form validation and submission
+    $form.on('submit', function(e) {
+        e.preventDefault();
+        
+        // Clear previous errors
+        $('.error').text('');
+        $('#form_result').empty();
+        
+        // Basic validation
+        let isValid = true;
+        const name = $('#contact-name').val().trim();
+        const email = $('#contact-email').val().trim();
+        const phone = $('#contact-phone').val().trim();
+        const subject = $('#contact-subject').val().trim();
+        const message = $('#contact-message').val().trim();
+        
+        if (!name) {
+            $('#contact-name').next('.error').text('Name is required');
+            isValid = false;
+        }
+        
+        if (!email) {
+            $('#contact-email').next('.error').text('Email is required');
+            isValid = false;
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            $('#contact-email').next('.error').text('Please enter a valid email');
+            isValid = false;
+        }
+        
+        if (!phone) {
+            $('#contact-phone').next('.error').text('Phone is required');
+            isValid = false;
+        } else if (!/^[\d\s\-\+\(\)]+$/.test(phone)) {
+            $('#contact-phone').next('.error').text('Please enter a valid phone number');
+            isValid = false;
+        }
+        
+        if (!subject) {
+            $('#contact-subject').next('.error').text('Subject is required');
+            isValid = false;
+        }
+        
+        if (!message) {
+            $('#contact-message').next('.error').text('Message is required');
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            return false;
+        }
+        
+        // Disable submit button
+        const $submitBtn = $('#contact-submit-btn');
+        const originalText = $submitBtn.html();
+        $submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Sending...');
+        
+        // Prepare form data according to backend requirements
+        const formData = {
+            name: name,
+            email: email,
+            phone: phone,
+            subject: subject,
+            message: message
+        };
+        
+        // Submit form to backend API
+        const apiEndpoint = 'https://api-admin.optisystemhub.net/api/v1/contact/store';
+        
+        $.ajax({
+            url: apiEndpoint,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            dataType: 'json',
+            success: function(response) {
+                // Handle successful response
+                $('#form_result').html('<span class="form-success">Thank you! Your message has been sent successfully. We will get back to you soon.</span>');
+                $form[0].reset();
+                $submitBtn.prop('disabled', false).html(originalText);
+                
+                // Auto close after 3 seconds
+                setTimeout(function() {
+                    closeModal();
+                }, 3000);
+            },
+            error: function(xhr, status, error) {
+                console.error('Form submission error:', error);
+                console.error('Response:', xhr.responseJSON);
+                
+                // Handle error response
+                let errorMessage = 'An error occurred. Please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMessage = xhr.responseJSON.error;
+                }
+                
+                $('#form_result').html('<span class="form-error">' + errorMessage + '</span>');
+                $submitBtn.prop('disabled', false).html(originalText);
+            }
+        });
+        
+        return false;
+    });
+});
+
+// Sticky Header on Scroll
+$(document).ready(function() {
+    const $header = $('.header-main-con');
+    
+    $(window).on('scroll', function() {
+        const scrollTop = $(window).scrollTop();
+        
+        if (scrollTop > 50) {
+            $header.addClass('scrolled');
+        } else {
+            $header.removeClass('scrolled');
+        }
+    });
+    
+    // Check on page load
+    if ($(window).scrollTop() > 50) {
+        $header.addClass('scrolled');
+    }
 });
 // 

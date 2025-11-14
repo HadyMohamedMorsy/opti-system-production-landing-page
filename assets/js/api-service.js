@@ -3,6 +3,8 @@ class APIService {
     constructor() {
       this.baseURL = "https://api-admin.optisystemhub.net/api/v1";
       this.imageBaseURL = "https://api-admin.optisystemhub.net";
+      // this.baseURL = "http://localhost:3002/api/v1";
+      // this.imageBaseURL = "http://localhost:3002";
         this.currentLanguage = localStorage.getItem('selectedLanguage') || 'en';
         this.cache = new Map();
     }
@@ -60,7 +62,19 @@ class APIService {
 
     // Get general settings
     getGeneralSettings(data) {
-        return data?.general_settings?.content || null;
+        const generalSettings = data?.general_settings;
+        if (!generalSettings) {
+            return null;
+        }
+        
+        // Get content for current language
+        const currentLang = this.currentLanguage === 'ar' ? 2 : 1; // Assuming 1=en, 2=ar
+        const content = generalSettings.content?.find(c => c.language_id === currentLang) || generalSettings.content?.[0];
+        
+        return {
+            ...generalSettings,
+            content: content
+        };
     }
 
     // Update current language
@@ -101,7 +115,7 @@ class ContentManager {
         this.buildSectionThree(); // Business boost section
         this.buildSectionFour(); // Features section
         this.buildSectionFive(); // Questionnaire section
-        this.buildSectionReviews(); // Reviews section
+        this.buildVideoSection(); // Video section
         this.buildPartners(); // Partners section
         this.buildSubfooter(); // Subfooter section
     }
@@ -109,65 +123,325 @@ class ContentManager {
     // Update general settings (meta, contact info, etc.)
     updateGeneralSettings() {
         const settings = this.api.getGeneralSettings(this.data);
-        if (!settings) {
+        if (!settings || !settings.content) {
+            return;
+        }
+
+        const content = settings.content;
+        const imageBaseURL = this.api.imageBaseURL;
+
+        // Check maintenance mode
+        if (settings.maintenance_mode) {
+            this.showMaintenanceMode(content.maintenance_message || 'Site is under maintenance');
             return;
         }
 
         // Update page title
-        if (settings.meta_title) {
-            document.title = settings.meta_title;
+        if (content.meta_title) {
+            document.title = content.meta_title;
+        } else if (content.store_name) {
+            document.title = content.store_name;
         }
 
-        // Update meta description
-        const metaDesc = document.querySelector('meta[name="description"]');
-        if (metaDesc && settings.meta_description) {
-            metaDesc.setAttribute('content', settings.meta_description);
+        // Update favicon
+        if (content.meta_favicon) {
+            this.updateFavicon(`${imageBaseURL}${content.meta_favicon}`);
         }
 
-        // Update meta keywords
-        const metaKeywords = document.querySelector('meta[name="keywords"]');
-        if (metaKeywords && settings.meta_keywords) {
-            metaKeywords.setAttribute('content', settings.meta_keywords);
+        // Update logo
+        if (content.logo) {
+            this.updateLogo(`${imageBaseURL}${content.logo}`);
         }
+
+        // Update all meta tags
+        this.updateMetaTags(content, imageBaseURL);
 
         // Update contact info in footer
         this.updateContactInfo(settings);
+
+        // Update social media links
+        this.updateSocialMediaLinks(settings);
+
+        // Add tracking scripts
+        this.addTrackingScripts(settings);
+    }
+
+    // Update favicon
+    updateFavicon(faviconUrl) {
+        // Remove existing favicon links
+        document.querySelectorAll('link[rel*="icon"]').forEach(link => {
+            if (!link.rel.includes('apple-touch-icon')) {
+                link.remove();
+            }
+        });
+
+        // Add new favicon
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        link.type = 'image/x-icon';
+        link.href = faviconUrl;
+        document.head.appendChild(link);
+    }
+
+    // Update logo
+    updateLogo(logoUrl) {
+        // Update header logo
+        const headerLogo = document.querySelector('.navbar-brand img');
+        if (headerLogo) {
+            headerLogo.src = logoUrl;
+            headerLogo.alt = 'logo';
+        }
+
+        // Update footer logo
+        const footerLogo = document.querySelector('.footer-logo-con figure img');
+        if (footerLogo) {
+            footerLogo.src = logoUrl;
+            footerLogo.alt = 'footer-logo';
+        }
+    }
+
+    // Update all meta tags
+    updateMetaTags(content, imageBaseURL) {
+        // Basic meta tags
+        this.setOrCreateMeta('description', content.meta_description || '');
+        this.setOrCreateMeta('keywords', content.meta_keywords || '');
+        this.setOrCreateMeta('author', content.meta_author || '');
+        this.setOrCreateMeta('robots', content.meta_robots || '');
+        
+        // Canonical
+        if (content.meta_canonical) {
+            let canonical = document.querySelector('link[rel="canonical"]');
+            if (!canonical) {
+                canonical = document.createElement('link');
+                canonical.rel = 'canonical';
+                document.head.appendChild(canonical);
+            }
+            canonical.href = content.meta_canonical;
+        }
+
+        // Open Graph meta tags
+        this.setOrCreateMeta('og:title', content.meta_og_title || content.meta_title || content.store_name || '');
+        this.setOrCreateMeta('og:description', content.meta_og_description || content.meta_description || '');
+        this.setOrCreateMeta('og:image', content.meta_og_image ? `${imageBaseURL}${content.meta_og_image}` : (content.meta_image ? `${imageBaseURL}${content.meta_image}` : ''));
+        this.setOrCreateMeta('og:url', content.meta_og_url || window.location.href);
+        this.setOrCreateMeta('og:type', content.meta_og_type || 'website');
+        this.setOrCreateMeta('og:locale', content.meta_og_locale || 'en_US');
+        this.setOrCreateMeta('og:site_name', content.meta_og_site_name || content.store_name || '');
+
+        // Twitter Card meta tags
+        this.setOrCreateMeta('twitter:card', 'summary_large_image');
+        this.setOrCreateMeta('twitter:title', content.meta_og_title || content.meta_title || content.store_name || '');
+        this.setOrCreateMeta('twitter:description', content.meta_og_description || content.meta_description || '');
+        this.setOrCreateMeta('twitter:image', content.meta_og_image ? `${imageBaseURL}${content.meta_og_image}` : (content.meta_image ? `${imageBaseURL}${content.meta_image}` : ''));
+    }
+
+    // Helper to set or create meta tag
+    setOrCreateMeta(name, content) {
+        if (!content) return;
+        
+        let meta = document.querySelector(`meta[name="${name}"]`) || document.querySelector(`meta[property="${name}"]`);
+        if (!meta) {
+            meta = document.createElement('meta');
+            if (name.startsWith('og:') || name.startsWith('twitter:')) {
+                meta.setAttribute('property', name);
+            } else {
+                meta.setAttribute('name', name);
+            }
+            document.head.appendChild(meta);
+        }
+        meta.setAttribute('content', content);
+    }
+
+    // Show maintenance mode
+    showMaintenanceMode(message) {
+        document.body.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-align: center; padding: 20px;">
+                <div>
+                    <h1 style="font-size: 48px; margin-bottom: 20px;">Maintenance Mode</h1>
+                    <p style="font-size: 24px;">${message}</p>
+                </div>
+            </div>
+        `;
     }
 
     // Update contact information
     updateContactInfo(settings) {
         // Update phone
-        const phoneLinks = document.querySelectorAll('a[href^="tel:"]');
-        phoneLinks.forEach(link => {
-            if (settings.phone) {
-                link.href = `tel:${settings.phone}`;
-                link.textContent = settings.phone;
-            }
-        });
+        if (settings.store_phone) {
+            const phoneLinks = document.querySelectorAll('a[href^="tel:"]');
+            phoneLinks.forEach(link => {
+                link.href = `tel:${settings.store_phone}`;
+                link.textContent = settings.store_phone;
+            });
+        }
 
         // Update email
-        const emailLinks = document.querySelectorAll('a[href^="mailto:"]');
-        emailLinks.forEach(link => {
-            if (settings.email) {
-                link.href = `mailto:${settings.email}`;
-                link.textContent = settings.email;
-            }
-        });
+        if (settings.store_email) {
+            const emailLinks = document.querySelectorAll('a[href^="mailto:"]');
+            emailLinks.forEach(link => {
+                link.href = `mailto:${settings.store_email}`;
+                link.textContent = settings.store_email;
+            });
+        }
 
-        // Update social media links
+        // Update store address if needed
+        if (settings.content && settings.content.store_address) {
+            // You can update address display if you have an element for it
+            const addressElements = document.querySelectorAll('[data-store-address]');
+            addressElements.forEach(el => {
+                el.textContent = settings.content.store_address;
+            });
+        }
+    }
+
+    // Update social media links
+    updateSocialMediaLinks(settings) {
+        const socialContainer = document.querySelector('.footer-logo-con ul');
+        if (!socialContainer) return;
+
+        // Clear existing social links
+        socialContainer.innerHTML = '';
+
+        // Add Facebook
         if (settings.facebook_url) {
-            const facebookLinks = document.querySelectorAll('a[href*="facebook.com"]');
-            facebookLinks.forEach(link => {
-                link.href = settings.facebook_url;
-            });
+            const facebookLi = document.createElement('li');
+            facebookLi.innerHTML = `<a target="_blank" href="${settings.facebook_url}"><i class="fab fa-facebook"></i></a>`;
+            socialContainer.appendChild(facebookLi);
         }
 
+        // Add Instagram
         if (settings.instagram_url) {
-            const instagramLinks = document.querySelectorAll('a[href*="instagram.com"]');
-            instagramLinks.forEach(link => {
-                link.href = settings.instagram_url;
-            });
+            const instagramLi = document.createElement('li');
+            instagramLi.innerHTML = `<a target="_blank" href="${settings.instagram_url}"><i class="fab fa-instagram"></i></a>`;
+            socialContainer.appendChild(instagramLi);
         }
+
+        // Add Twitter
+        if (settings.twitter_url) {
+            const twitterLi = document.createElement('li');
+            twitterLi.innerHTML = `<a target="_blank" href="${settings.twitter_url}"><i class="fab fa-twitter"></i></a>`;
+            socialContainer.appendChild(twitterLi);
+        }
+    }
+
+    // Add tracking scripts
+    addTrackingScripts(settings) {
+        // Google Tag Manager
+        if (settings.gtm_enabled && settings.gtm_container_id) {
+            this.addGTMScript(settings.gtm_container_id);
+        }
+
+        // Google Analytics
+        if (settings.google_analytics_enabled && settings.google_analytics_id) {
+            this.addGoogleAnalyticsScript(settings.google_analytics_id);
+        }
+
+        // Facebook Pixel
+        if (settings.facebook_pixel_enabled && settings.facebook_pixel_id) {
+            this.addFacebookPixelScript(settings.facebook_pixel_id);
+        }
+
+        // Snapchat Pixel
+        if (settings.snapchat_pixel_enabled && settings.snapchat_pixel_id) {
+            this.addSnapchatPixelScript(settings.snapchat_pixel_id);
+        }
+
+        // TikTok Pixel
+        if (settings.init_tiktok_enabled && settings.init_tiktok_id) {
+            this.addTikTokPixelScript(settings.init_tiktok_id);
+        }
+    }
+
+    // Add Google Tag Manager
+    addGTMScript(containerId) {
+        // GTM Script in head
+        const gtmScript = document.createElement('script');
+        gtmScript.innerHTML = `
+            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','${containerId}');
+        `;
+        document.head.appendChild(gtmScript);
+
+        // GTM noscript in body
+        const gtmNoscript = document.createElement('noscript');
+        gtmNoscript.innerHTML = `<iframe src="https://www.googletagmanager.com/ns.html?id=${containerId}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`;
+        document.body.insertBefore(gtmNoscript, document.body.firstChild);
+    }
+
+    // Add Google Analytics
+    addGoogleAnalyticsScript(gaId) {
+        const gaScript1 = document.createElement('script');
+        gaScript1.async = true;
+        gaScript1.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+        document.head.appendChild(gaScript1);
+
+        const gaScript2 = document.createElement('script');
+        gaScript2.innerHTML = `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${gaId}');
+        `;
+        document.head.appendChild(gaScript2);
+    }
+
+    // Add Facebook Pixel
+    addFacebookPixelScript(pixelId) {
+        const fbScript = document.createElement('script');
+        fbScript.innerHTML = `
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '${pixelId}');
+            fbq('track', 'PageView');
+        `;
+        document.head.appendChild(fbScript);
+
+        const fbNoscript = document.createElement('noscript');
+        fbNoscript.innerHTML = `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"/>`;
+        document.body.appendChild(fbNoscript);
+    }
+
+    // Add Snapchat Pixel
+    addSnapchatPixelScript(pixelId) {
+        const snapScript = document.createElement('script');
+        snapScript.innerHTML = `
+            (function() {
+                var s = document.createElement('script');
+                s.src = 'https://sc-static.net/scevent.min.js';
+                s.async = true;
+                s.onload = function() {
+                    if (typeof snap !== 'undefined' && snap.pixel) {
+                        snap.pixel.init('${pixelId}', {}, {});
+                        snap.pixel.track('PAGE_VIEW');
+                    }
+                };
+                var firstScript = document.getElementsByTagName('script')[0];
+                firstScript.parentNode.insertBefore(s, firstScript);
+            })();
+        `;
+        document.head.appendChild(snapScript);
+    }
+
+    // Add TikTok Pixel
+    addTikTokPixelScript(pixelId) {
+        const tiktokScript = document.createElement('script');
+        tiktokScript.innerHTML = `
+            !function (w, d, t) {
+                w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+                ttq.load('${pixelId}');
+                ttq.page();
+            }(window, document, 'ttq');
+        `;
+        document.head.appendChild(tiktokScript);
     }
 
     // Build Section One (Hero/Banner) - Dynamic HTML
@@ -202,6 +476,9 @@ class ContentManager {
                   "For plenty of power and room to grow, go Dedicated and get the whole box to yourself."
                 }</p>
                 <div class="banner-link-con generic-btn">
+                    <div class="banner-cta-btn">
+                        <a href="#" id="banner-get-started-btn" class="get-started-btn">Get Started</a>
+                    </div>
                     ${
                       content.discount_percentage
                         ? `
@@ -231,14 +508,22 @@ class ContentManager {
                       "assets/images/man-with-laptop-banner-img.png"
                     }" alt="man-with-laptop-banner-img">
                 </figure>
-                <figure class="mb-0 reviewers-details">
-                    <img src="assets/images/banner-reviewers-img.png" alt="banner-reviewers-img">
-                </figure>
             </div>
         `;
 
         if (bannerInner) {
             bannerInner.innerHTML = bannerHTML;
+            
+            // Update button text based on current language
+            const currentLang = this.api.getCurrentLanguage();
+            const $getStartedBtn = $('#banner-get-started-btn');
+            if ($getStartedBtn.length) {
+                if (currentLang === 'ar') {
+                    $getStartedBtn.text('ابدأ الآن');
+                } else {
+                    $getStartedBtn.text('Get Started');
+                }
+            }
         }
     }
 
@@ -250,6 +535,10 @@ class ContentManager {
         // Clear existing content
         const hostingInner = document.querySelector(".section-two");
         if (hostingInner) hostingInner.innerHTML = "";
+
+        // Get current language for currency symbol
+        const currentLang = this.api.getCurrentLanguage() || localStorage.getItem('selectedLanguage') || 'en';
+        const currencySymbol = currentLang === 'ar' ? 'ج.م' : 'EGP';
 
         // Build dynamic HTML - Exact original structure
         const hostingHTML = `
@@ -266,7 +555,7 @@ class ContentManager {
                             </figure>
                             <h6>${plan.plan_name || 'Shared Hosting'}</h6>
                             <div class="hosting-price-box">
-                                <span class="dollar">$</span> <span id="price_val${index + 2}" class="numeric1">${plan.price || '12'}</span>
+                                <span class="dollar">${currencySymbol}</span> <span id="price_val${index + 2}" class="numeric1">${plan.price || '12'}</span>
                                 <div class="month-title">
                                     <span id="point_val${index + 2}" class="numeric2">${plan.price_cents || '.99'}</span>
                                     <small>/month</small>
@@ -279,7 +568,7 @@ class ContentManager {
                                 `).join('') : ''}
                             </ul>
                             <div class="generic-btn">
-                                <a href="shared.html">ORDER NOW</a>
+                                <a href="#" class="order-now-btn">Start</a>
                             </div>
                         </div>
                     `).join('') : ''}
@@ -289,6 +578,17 @@ class ContentManager {
 
         if (hostingInner) {
             hostingInner.innerHTML = hostingHTML;
+            
+            // Update button text based on current language
+            const currentLang = this.api.getCurrentLanguage();
+            const $orderBtns = $('.order-now-btn');
+            $orderBtns.each(function() {
+                if (currentLang === 'ar') {
+                    $(this).text('ابدأ بارضك');
+                } else {
+                    $(this).text('Start Now');
+                }
+            });
         }
     }
 
@@ -473,7 +773,7 @@ class ContentManager {
                             <div class="hosting-features-content-con">
                                 <h6>${feature.title || 'Dedicated Resources'}</h6>
                                 <p>${feature.description || 'Duis aute irure dolor in reprehenderi in voluptate velit esse cillum dolore eina fugiat nulla pariatur.'}</p>
-                                <a href="contact.html">Read more <i class="fas fa-angle-right"></i></a>
+                                <a href="#" class="read-more-btn">Start Now <i class="fas fa-angle-right"></i></a>
                             </div>
                         </div>
                     `).join('') : ''}
@@ -483,6 +783,20 @@ class ContentManager {
 
         // Insert the new content
         featuresSection.innerHTML = featuresHTML;
+        
+        // Update button text based on current language
+        const currentLang = this.api.getCurrentLanguage();
+        const $readMoreBtns = $('.read-more-btn');
+        $readMoreBtns.each(function() {
+            const $btn = $(this);
+            const $icon = $btn.find('i');
+            const iconHTML = $icon.length ? $icon[0].outerHTML : '';
+            if (currentLang === 'ar') {
+                $btn.html('ابدأ الآن ' + iconHTML);
+            } else {
+                $btn.html('Start Now ' + iconHTML);
+            }
+        });
     }
 
     // Update hosting features
@@ -534,7 +848,7 @@ class ContentManager {
                             <img src="${item.icon || 'assets/images/questionnaire-img1.png'}" alt="questionnaire-img1">
                         </figure>
                         <h3>${item.title || 'Already Have a Website?'}</h3>
-                        <p>${item.description || 'Transfer an existing website to Hostiko for the same low price of $9.99/mo*'}</p>
+                        <p>${item.description || 'Transfer an existing website to Hostiko for the same low price of EGP 9.99/mo*'}</p>
                         <div class="generic-btn">
                             <a href="domain.html">Transfer My Website</a>
                         </div>
@@ -571,64 +885,12 @@ class ContentManager {
         });
     }
 
-    // Build Section Reviews - Dynamic HTML
-    buildSectionReviews() {
-        const content = this.api.getSectionContent(this.data, 'section_reviews');
-        if (!content) {
-            return;
-        }
-
-        // Find the reviews section
-        const reviewsSection = document.querySelector('.client-review-slider');
-        if (!reviewsSection) return;
-
-        // Clear existing content - replace the entire section content
-        reviewsSection.innerHTML = '';
-
-      // Build dynamic HTML - Exact original structure
-      console.log(content);
-        const reviewsHTML = `
-            <div class="container">
-                <div class="generic-title text-center wow fadeInUp" data-wow-duration="1s" data-wow-delay="0.3s">
-                    <h2>${content.title || 'What Our Customers are Saying'}</h2>
-                    <p>${content.description || 'Nuis autem vel eum iure reprehenderit rui in ea voluate molestiae'}</p>
-                </div>
-                <div class="client-review-outer-con wow fadeInUp" data-wow-duration="1s" data-wow-delay="0.3s">
-                <div class="owl-carousel owl-theme" id="owl-carousel-client">
-                    ${content.reviews ? content.reviews.map(review => `
-                        <div class="item">
-                            <div class="client-review-box">
-                                <figure>
-                                    <img src="${this.api.imageBaseURL + "/" + review.icon || 'assets/images/review-slider-quote-img.png'}" alt="review-slider-quote-img">
-                                </figure>
-                                <h6>${review.name || 'Excellent Hosting'}</h6>
-                                <p>${review.description || 'Great support, like i have never seen before. Thanks to the support team, they are very helpfull.'}</p>
-                                <div class="reviewer-info-box">
-                                    <figure class="mb-0">
-                                        <img src="${this.api.imageBaseURL + "/" + review.image_reviewer || 'assets/images/reviewer-img1.png'}" alt="reviewer-img1">
-                                    </figure>
-                                    <div class="reviewer-details">
-                                        <span class="d-block">${review.name_reviewer || 'Kevin Andrew'}</span>
-                                        <figure class="mb-0">
-                                            <img src="assets/images/review-stars-img.png" alt="review-stars-img">
-                                        </figure>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('') : ''}
-                </div>
-            </div>
-            </div>
-        `;
-
-        // Insert the new content
-        reviewsSection.innerHTML = reviewsHTML;
-        
-        // Re-initialize Owl Carousel after content is loaded (with small delay)
-        setTimeout(() => {
-            this.initializeOwlCarousel();
-        }, 100);
+    // Build Video Section - Static Video
+    buildVideoSection() {
+        // Video section is static, no dynamic content needed
+        // Video source is hardcoded in HTML: assets/images/video.mp4
+        // This function is kept for consistency with other sections but does nothing
+        return;
     }
 
     // Initialize Owl Carousel for reviews
