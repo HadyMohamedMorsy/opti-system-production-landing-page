@@ -907,7 +907,7 @@
             left: 0;
         }
         .header-main-con {
-            top: 20px;
+            top: 0px;
         }
         .header-main-con .navbar .navbar-nav .nav-link.active,
         .header-main-con .navbar .navbar-nav .nav-link:hover {
@@ -1990,10 +1990,10 @@
     }
     @media only screen and (max-width: 575px) {
         .header-main-con {
-            top: 20px;
+            top: 0px;
         }
         .banner-main-con {
-            padding: 90px 0 0;
+            padding: 145px 0 0;
         }
         .banner-content-con {
             padding: 0;

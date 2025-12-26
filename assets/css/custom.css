@@ -4,7 +4,7 @@
 :root {
     --primary-color: #ffffff;
     --secondary-color: #242424;
-    --accent: #1dbf73;
+    --accent: #5f408e;
     --text-color: #7c7c7c;
     --border-color: #cfdee5;
     --blue-color: #2f78bc;
@@ -181,14 +181,27 @@ a:hover{
     z-index: 999;
     transition: all 0.3s ease;
     background: transparent;
-    padding: 33px 0;
+    padding: 5px 0;
 }
 
 .header-main-con.scrolled {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-    padding: 15px 0;
+}
+@media (max-width: 575px) {
+  .header-main-con.scrolled{
+        padding: 0px;
+  }
+  .header-main-con .navbar-light .navbar-brand {
+    margin-inline-start: auto;
+  }
+}
+
+@media (min-width: 576px) {
+  .header-main-con .navbar-light .navbar-brand {
+      margin-right: 39px;
+  }
 }
 .header-main-con .collapse.navbar-collapse {
     justify-content: end;
@@ -206,9 +219,7 @@ a:hover{
 .header-main-con .navbar .navbar-nav .nav-link:hover{
     color: var(--blue-color);
 }
-.header-main-con .navbar-light .navbar-brand {
-    margin-right: 39px;
-}
+
 .header-main-con .navbar .navbar-nav {
     gap: 39px;
 }
@@ -979,7 +990,7 @@ figure.service-chat-img {
 
 /* Header Logo Styling */
 .navbar-brand img {
-    width: 100px;
+    width: 70px;
     height: auto;
     max-width: 100%;
     object-fit: contain;

@@ -1,12 +1,12 @@
 // API Service for Dynamic Content Management
 class APIService {
     constructor() {
-      this.baseURL = "https://api-admin.optisystemhub.net/api/v1";
-      this.imageBaseURL = "https://api-admin.optisystemhub.net";
-      // this.baseURL = "http://localhost:3002/api/v1";
-      // this.imageBaseURL = "http://localhost:3002";
-        this.currentLanguage = localStorage.getItem('selectedLanguage') || 'en';
-        this.cache = new Map();
+      // this.baseURL = "https://api-admin.optisystemhub.net/api/v1";
+      // this.imageBaseURL = "https://api-admin.optisystemhub.net";
+      this.baseURL = "http://localhost:3001/api/v1";
+      this.imageBaseURL = "http://localhost:3001";
+      this.currentLanguage = localStorage.getItem("selectedLanguage") || "en";
+      this.cache = new Map();
     }
 
     // Fetch unified data from API
