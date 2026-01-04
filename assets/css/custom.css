@@ -791,7 +791,7 @@ html[dir="rtl"] .banner-content-con p {
 .hosting-types-inner-con {
     display: grid;
     gap: 30px;
-    grid-template-columns: 50% 50%;
+    grid-template-columns: 1fr 1fr 1fr;
 }
 .hosting-type-box {
     background: var(--primary-color);

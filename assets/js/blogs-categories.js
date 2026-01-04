@@ -336,7 +336,7 @@ class BlogsCategoriesService {
                                         <span class="text-size-14">${category.name || this.getTranslation('uncategorized')}</span>
                                     ` : ''}
                                 </div>
-                                <p class="mb-0 text-size-16">${this.cleanHTML(content?.description || content?.title || 'No description available')}</p>
+                                <p class="mb-0 text-size-16">${this.cleanHTML(content?.name || content?.title || 'No content available')}</p>
                             </div>
                             <div class="button-portion">
                                 <div class="date">
@@ -1025,7 +1025,7 @@ class BlogsCategoriesService {
                                     ` : ''}
                                 </div>
                                 <h5 class="mb-2">${content?.title || 'Blog Title'}</h5>
-                                <p class="mb-0 text-size-16">${this.cleanHTML(content?.description || content?.title || 'No description available').substring(0, 100)}...</p>
+                                <p class="mb-0 text-size-16">${this.cleanHTML(content?.name || content?.title || 'No content available').substring(0, 100)}...</p>
                             </div>
                             <div class="button-portion">
                                 <div class="date">

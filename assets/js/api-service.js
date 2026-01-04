@@ -1,10 +1,10 @@
 // API Service for Dynamic Content Management
 class APIService {
     constructor() {
-      // this.baseURL = "https://api-admin.optisystemhub.net/api/v1";
-      // this.imageBaseURL = "https://api-admin.optisystemhub.net";
-      this.baseURL = "http://localhost:3001/api/v1";
-      this.imageBaseURL = "http://localhost:3001";
+      this.baseURL = "https://api-admin.optisystemhub.net/api/v1";
+      this.imageBaseURL = "https://api-admin.optisystemhub.net";
+      // this.baseURL = "http://localhost:3001/api/v1";
+      // this.imageBaseURL = "http://localhost:3001";
       this.currentLanguage = localStorage.getItem("selectedLanguage") || "en";
       this.cache = new Map();
     }
@@ -796,7 +796,6 @@ class ContentManager {
                             <div class="hosting-features-content-con">
                                 <h6>${feature.title || 'Dedicated Resources'}</h6>
                                 <p>${feature.description || 'Duis aute irure dolor in reprehenderi in voluptate velit esse cillum dolore eina fugiat nulla pariatur.'}</p>
-                                <a href="#" class="read-more-btn">Start Now <i class="fas fa-angle-right"></i></a>
                             </div>
                         </div>
                     `).join('') : ''}
